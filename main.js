@@ -4,6 +4,14 @@ const http = require("node:http");
 
 const main = async () => {
     const server = http.createServer(async(req, res) => {
+        if (!apiTokenCheck(req.headers['x-api-token'] ?? '')) {
+            res.writeHead(401, {'Content-Type': 'application/json'});
+            return res.end(JSON.stringify({
+                status: 'error',
+                message: 'Unauthorized',
+            }));
+        }
+
         let html;
 
         const cachedFile = getCachedFile()
@@ -74,6 +82,10 @@ const parseFile = (html) => {
 
         return JSON.parse(jsonArray)
     }
+}
+
+const apiTokenCheck = (token) => {
+    return process.env.API_TOKEN === token;
 }
 
 main()
